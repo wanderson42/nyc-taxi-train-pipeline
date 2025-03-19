@@ -54,5 +54,5 @@ This script will:
 - Save Profile data back to MongoDB
 - Save Report to `evidently_report_example.html`
 
-You can look at Prefect steps in Prefect Orion UI
-(to start it execute `prefect orion start`)
+You can look at Prefect steps in Prefect Server UI
+(to start it execute `prefect server start`)
