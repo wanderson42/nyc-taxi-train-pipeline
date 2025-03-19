@@ -1,4 +1,4 @@
-# Pipeline ML Train Example
+# Pipeline ML Train
 
 ## Prerequisites
 
