@@ -1,4 +1,4 @@
-# Monitoring example
+# Pipeline ML Train Example
 
 ## Prerequisites
 
