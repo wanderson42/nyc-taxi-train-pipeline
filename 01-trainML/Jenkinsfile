@@ -37,16 +37,16 @@ spec:
     }
   }
 
+  triggers {
+    githubPush()
+  }
+  
   environment {
     TAG = "latest"
     IMAGE_NAME = "wanderson/nyc-taxi-flow"
     DOCKER_DEST = "wlf42/nyc-taxi-flow:latest"
     PREFECT_API_URL = "http://prefect-server.default.svc.cluster.local:4200/api"
     MINIKUBE_IP = '192.168.58.2'  // IP da VM Minikube
-  }
-
-  triggers {
-    githubPush()
   }
 
   stages {
