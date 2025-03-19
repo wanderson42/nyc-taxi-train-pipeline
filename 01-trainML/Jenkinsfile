@@ -55,7 +55,7 @@ spec:
         container(name: 'kaniko') {
           sh '''
             echo "Clonando o repositório..."
-            git clone https://github.com/wanderson42/nyc-taxi-aws-mlops.git /workspace/repo
+            git clone https://github.com/wanderson42/nyc-taxi-train-pipeline.git /workspace/repo
 
             echo "Verificando conteúdo clonado..."
             ls -la /workspace/repo/01-trainML
