@@ -36,10 +36,6 @@ spec:
 """
     }
   }
-
-  triggers {
-    githubPush()
-  }
   
   environment {
     TAG = "latest"
