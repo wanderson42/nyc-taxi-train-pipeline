@@ -1,0 +1,117 @@
+pipeline {
+  agent {
+    kubernetes {
+      yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+    - name: kaniko
+      image: wlf42/kaniko-git:latest
+      imagePullPolicy: Always
+      command: ["sleep"]
+      args: ["99d"]
+      env:
+        - name: DOCKER_CONFIG
+          value: /kaniko/.docker
+      volumeMounts:
+        - name: jenkins-docker-cfg
+          mountPath: /kaniko/.docker
+      resources:
+        limits:
+          memory: "6Gi"
+          cpu: "3000m"
+        requests:
+          memory: "2Gi"
+          cpu: "2000m"
+  volumes:
+    - name: jenkins-docker-cfg
+      projected:
+        sources:
+          - secret:
+              name: regcred
+              items:
+                - key: .dockerconfigjson
+                  path: config.json
+"""
+    }
+  }
+
+  environment {
+    TAG = "latest"
+    IMAGE_NAME = "wanderson/nyc-taxi-flow"
+    DOCKER_DEST = "wlf42/nyc-taxi-flow:latest"
+    PREFECT_API_URL = "http://prefect-server.default.svc.cluster.local:4200/api"
+    MINIKUBE_IP = '192.168.58.2'  // IP da VM Minikube
+  }
+
+  triggers {
+    githubPush()
+  }
+
+  stages {
+    stage('Build Docker Image with Kaniko') {
+      steps {
+        container(name: 'kaniko') {
+          sh '''
+            echo "Clonando o repositório..."
+            git clone https://github.com/wanderson42/nyc-taxi-aws-mlops.git /workspace/repo
+
+            echo "Verificando conteúdo clonado..."
+            ls -la /workspace/repo/01-trainML
+
+            echo "Iniciando build com Kaniko..."
+            /kaniko/executor \
+              --context=/workspace/repo/01-trainML \
+              --dockerfile=/workspace/repo/01-trainML/Dockerfile \
+              --destination=${DOCKER_DEST} \
+              --cache=true \
+              --compressed-caching=false \
+              --cache-copy-layers \
+              --verbosity=debug \
+              --force
+          '''
+        }
+      }
+    }
+
+    stage('Deploy to Prefect') {
+      steps {
+        container(name: 'kaniko') {
+          withEnv(["PREFECT_API_URL=${PREFECT_API_URL}"]) {
+            sh '''
+              echo "Verificando conexão com Prefect em: $PREFECT_API_URL"
+              cd /workspace/repo/01-trainML
+              prefect config validate
+              echo "Iniciando deploy para Prefect Server..."
+              make deploy-months YEAR=2024
+            '''
+          }
+        }
+      }
+    }
+
+    stage('Atualizar Imagem no Minikube') {
+      steps {
+        sshagent(['minikube-ssh-credentials']) {
+          sh '''
+            # Garantir que o diretório ~/.ssh exista
+            mkdir -p ~/.ssh
+            chmod 0700 ~/.ssh
+
+            # Adicionar o host ao arquivo known_hosts
+            ssh-keyscan -t rsa,dsa ${MINIKUBE_IP} >> ~/.ssh/known_hosts
+
+            # Verificar a conexão SSH com o Minikube
+            ssh -o StrictHostKeyChecking=no docker@${MINIKUBE_IP} 'echo "SSH Conexão bem-sucedida!"'
+
+            # Agora podemos rodar o comando docker no Minikube (como exemplo)
+            ssh -o StrictHostKeyChecking=no docker@${MINIKUBE_IP} "docker rmi -f ${DOCKER_DEST}"  # Remover a imagem antiga
+            ssh -o StrictHostKeyChecking=no docker@${MINIKUBE_IP} "docker pull ${DOCKER_DEST}"  # Fazer o pull da imagem mais recente
+          '''
+        }
+      }
+    }
+  }
+}
+

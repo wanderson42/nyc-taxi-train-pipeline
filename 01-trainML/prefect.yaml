@@ -1,0 +1,206 @@
+name: flows
+prefect-version: 3.2.11
+
+push:
+- prefect_aws.deployments.steps.push_to_s3:
+    id: push_code
+    requires: prefect-aws>=0.3.4
+    bucket: mlflow-cloud-artifacts
+    folder: nyc-deployments
+    credentials: '{{ prefect.blocks.aws-credentials.aws-s3-creds }}'
+
+pull:
+- prefect_aws.deployments.steps.pull_from_s3:
+    id: pull_code
+    requires: prefect-aws>=0.3.4
+    bucket: '{{ push_code.bucket }}'
+    folder: '{{ push_code.folder }}'
+    credentials: '{{ prefect.blocks.aws-credentials.aws-s3-creds }}'
+
+definitions:
+  work_pool:
+    name: minikube-workpool
+    job_variables:
+      image: wlf42/nyc-taxi-flow:latest
+
+deployments:
+- name: train-nyc-01
+  version:
+  tags: []
+  concurrency_limit:
+  description: Deploy mensal do fluxo train-nyc para o mês de 01/2024
+  entrypoint: train.py:main_flow
+  parameters:
+    exp_name: nyc-green-taxi-2024-01
+    taxi_type: green
+    date: '2024-01-01'
+    s3bucket_name: mlflow-cloud-artifacts
+    s3bucket_dataset_folder: nyc-trip-data
+    s3bucket_mlflow_artifact_folder: nyc-mlflow-artifacts
+  work_pool:
+    name: minikube-workpool
+    work_queue_name:
+    job_variables:
+      image: wlf42/nyc-taxi-flow:latest
+  schedules:
+  - cron: 0 9 5 01 *
+    timezone: America/Sao_Paulo
+    day_or: true
+    active: true
+  pull:
+  - prefect_aws.deployments.steps.pull_from_s3:
+      id: pull_code
+      requires: prefect-aws>=0.3.4
+      bucket: mlflow-cloud-artifacts
+      folder: nyc-deployments
+      credentials: '{{ prefect.blocks.aws-credentials.aws-s3-creds }}'
+- name: train-nyc-02
+  version:
+  tags: []
+  concurrency_limit:
+  description: Deploy mensal do fluxo train-nyc para o mês de 02/2024
+  entrypoint: train.py:main_flow
+  parameters:
+    exp_name: nyc-green-taxi-2024-02
+    taxi_type: green
+    date: '2024-02-01'
+    s3bucket_name: mlflow-cloud-artifacts
+    s3bucket_dataset_folder: nyc-trip-data
+    s3bucket_mlflow_artifact_folder: nyc-mlflow-artifacts
+  work_pool:
+    name: minikube-workpool
+    work_queue_name:
+    job_variables:
+      image: wlf42/nyc-taxi-flow:latest
+  schedules:
+  - cron: 0 9 5 02 *
+    timezone: America/Sao_Paulo
+    day_or: true
+    active: true
+  pull:
+  - prefect_aws.deployments.steps.pull_from_s3:
+      id: pull_code
+      requires: prefect-aws>=0.3.4
+      bucket: mlflow-cloud-artifacts
+      folder: nyc-deployments
+      credentials: '{{ prefect.blocks.aws-credentials.aws-s3-creds }}'
+- name: train-nyc-03
+  version:
+  tags: []
+  concurrency_limit:
+  description: Deploy mensal do fluxo train-nyc para o mês de 03/2024
+  entrypoint: train.py:main_flow
+  parameters:
+    exp_name: nyc-green-taxi-2024-03
+    taxi_type: green
+    date: '2024-03-01'
+    s3bucket_name: mlflow-cloud-artifacts
+    s3bucket_dataset_folder: nyc-trip-data
+    s3bucket_mlflow_artifact_folder: nyc-mlflow-artifacts
+  work_pool:
+    name: minikube-workpool
+    work_queue_name:
+    job_variables:
+      image: wlf42/nyc-taxi-flow:latest
+  schedules:
+  - cron: 0 9 5 03 *
+    timezone: America/Sao_Paulo
+    day_or: true
+    active: true
+  pull:
+  - prefect_aws.deployments.steps.pull_from_s3:
+      id: pull_code
+      requires: prefect-aws>=0.3.4
+      bucket: mlflow-cloud-artifacts
+      folder: nyc-deployments
+      credentials: '{{ prefect.blocks.aws-credentials.aws-s3-creds }}'
+- name: train-nyc-04
+  version:
+  tags: []
+  concurrency_limit:
+  description: Deploy mensal do fluxo train-nyc para o mês de 04/2024
+  entrypoint: train.py:main_flow
+  parameters:
+    exp_name: nyc-green-taxi-2024-04
+    taxi_type: green
+    date: '2024-04-01'
+    s3bucket_name: mlflow-cloud-artifacts
+    s3bucket_dataset_folder: nyc-trip-data
+    s3bucket_mlflow_artifact_folder: nyc-mlflow-artifacts
+  work_pool:
+    name: minikube-workpool
+    work_queue_name:
+    job_variables:
+      image: wlf42/nyc-taxi-flow:latest
+  schedules:
+  - cron: 0 9 5 04 *
+    timezone: America/Sao_Paulo
+    day_or: true
+    active: true
+  pull:
+  - prefect_aws.deployments.steps.pull_from_s3:
+      id: pull_code
+      requires: prefect-aws>=0.3.4
+      bucket: mlflow-cloud-artifacts
+      folder: nyc-deployments
+      credentials: '{{ prefect.blocks.aws-credentials.aws-s3-creds }}'
+- name: train-nyc-05
+  version:
+  tags: []
+  concurrency_limit:
+  description: Deploy mensal do fluxo train-nyc para o mês de 05/2024
+  entrypoint: train.py:main_flow
+  parameters:
+    exp_name: nyc-green-taxi-2024-05
+    taxi_type: green
+    date: '2024-05-01'
+    s3bucket_name: mlflow-cloud-artifacts
+    s3bucket_dataset_folder: nyc-trip-data
+    s3bucket_mlflow_artifact_folder: nyc-mlflow-artifacts
+  work_pool:
+    name: minikube-workpool
+    work_queue_name:
+    job_variables:
+      image: wlf42/nyc-taxi-flow:latest
+  schedules:
+  - cron: 0 9 5 05 *
+    timezone: America/Sao_Paulo
+    day_or: true
+    active: true
+  pull:
+  - prefect_aws.deployments.steps.pull_from_s3:
+      id: pull_code
+      requires: prefect-aws>=0.3.4
+      bucket: mlflow-cloud-artifacts
+      folder: nyc-deployments
+      credentials: '{{ prefect.blocks.aws-credentials.aws-s3-creds }}'
+- name: train-nyc-06
+  version:
+  tags: []
+  concurrency_limit:
+  description: Deploy mensal do fluxo train-nyc para o mês de 06/2024
+  entrypoint: train.py:main_flow
+  parameters:
+    exp_name: nyc-green-taxi-2024-06
+    taxi_type: green
+    date: '2024-06-01'
+    s3bucket_name: mlflow-cloud-artifacts
+    s3bucket_dataset_folder: nyc-trip-data
+    s3bucket_mlflow_artifact_folder: nyc-mlflow-artifacts
+  work_pool:
+    name: minikube-workpool
+    work_queue_name:
+    job_variables:
+      image: wlf42/nyc-taxi-flow:latest
+  schedules:
+  - cron: 0 9 5 06 *
+    timezone: America/Sao_Paulo
+    day_or: true
+    active: true
+  pull:
+  - prefect_aws.deployments.steps.pull_from_s3:
+      id: pull_code
+      requires: prefect-aws>=0.3.4
+      bucket: mlflow-cloud-artifacts
+      folder: nyc-deployments
+      credentials: '{{ prefect.blocks.aws-credentials.aws-s3-creds }}'

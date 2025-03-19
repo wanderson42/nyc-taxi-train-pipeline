@@ -1,0 +1,8 @@
+{
+  "exp_name": "nyc-green-taxi-2024-02",
+  "taxi_type": "green",
+  "date": "2024-02-01",
+  "s3bucket_name": "mlflow-cloud-artifacts",
+  "s3bucket_dataset_folder": "nyc-trip-data",
+  "s3bucket_mlflow_artifact_folder": "nyc-mlflow-artifacts"
+}
